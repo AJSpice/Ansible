@@ -15,7 +15,6 @@ PROV_NET: My OOB network 192.168.1.0/24
 4. the ansible playbook will first run the python script
 5. python script generates the ansible hosts file in the current dir using the csv as info, and the PROV_NET ip'
 6. python scruot generates a config file for each host on the PROV_NET according to the csv info and the corresponding .j2 file / _base_config.aos
-
 7. the ansible playbook will push the base config to each device according to the CSV info and the corresponding .j2 file / _base_config.aos
       The ansible playbook sends a crypto key cert seperately
       The ansible playbook copies the running config and save to the applied_configs dir for review
