@@ -1,0 +1,34 @@
+---
+- name: Push WAP Port Config Commands
+
+  hosts: lab_switch # change this to targeted hosts
+  collections:
+    - arubanetworks.aoscx
+  gather_facts: no
+  vars:
+   - ansible_tacacs_username: "{{ lookup('file', '/home/ansible/credentials.yaml') | from_yaml }}" # used to find the ansible_user tacacs login
+   - ansible_tacacs_password: "{{ lookup('file', '/home/ansible/credentials.yaml') | from_yaml }}" # used to find the ansible_password tacacs login
+   - ansible_user: "{{ ansible_tacacs_username }}" # reassign to new var
+   - ansible_password: "{{ ansible_tacacs_password }}" # reassign to new var
+  vars_files: # path to encrypted credentials file
+   - /home/ansible/credentials.yaml
+
+  tasks:
+    - name: Generate Config File
+      script: ./python/port_config.py # runs the python script to generate cli commands
+      args:
+        executable: /usr/bin/python3.11
+
+    - name: Read Commands From File
+      shell: cat ./python/config.txt
+      register: command_file
+
+    - name: Run CLI Commands
+      aoscx_command:
+        commands: "{{ command_file.stdout_lines }}" # sends the commands over
+      register: cli_output # defines the register to the cli_output var
+
+    - name: Output the cli 
+      debug: 
+        var: cli_output
+...

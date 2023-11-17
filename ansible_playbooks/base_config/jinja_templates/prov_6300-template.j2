@@ -1,0 +1,115 @@
+!!!! PROV SWITCH !!!!
+
+
+conf t
+!
+hostname {{switch_hostname}}
+!
+domain-name {{null}}
+!
+banner motd !
+------------------------------------------------------------------------------------
+{{null}}
+------------------------------------------------------------------------------------  
+!
+user admin group administrators password ciphertext {{null}}
+user sdsc_cosd group administrators password ciphertext {{null}}
+!
+clock timezone america/los_angeles
+no ip icmp unreachable
+no ip icmp redirect
+allow-unsupported-transceiver confirm
+ntp server {{gateway_ip}} iburst
+ntp enable
+cli-session
+    timeout 10
+!
+tacacs-server host {{null}} key ciphertext {{null}}																									  
+tacacs-server host {{null}} key ciphertext {{null}}
+radius-server host {{null}} key ciphertext {{null}}
+radius-server host {{null}} key ciphertext {{null}}
+!
+aaa group server tacacs CLEARPASS-TACACS
+    server {{null}}
+    server {{null}}
+aaa group server radius CLEARPASS-RADIUS
+    server {{null}}
+    server {{null}}
+!
+aaa authentication login console group CLEARPASS-TACACS local
+aaa authentication login https-server group CLEARPASS-TACACS
+aaa authentication login ssh group CLEARPASS-TACACS
+aaa accounting all-mgmt console start-stop group CLEARPASS-TACACS
+aaa accounting all-mgmt default start-stop group CLEARPASS-TACACS
+aaa accounting all-mgmt https-server start-stop group CLEARPASS-TACACS
+aaa accounting all-mgmt ssh start-stop group CLEARPASS-TACACS
+aaa accounting port-access start-stop interim 15 group CLEARPASS-RADIUS
+!
+radius dyn-authorization enable
+radius dyn-authorization client {{null}} secret-key ciphertext {{null}}
+radius dyn-authorization client {{null}} secret-key ciphertext {{null}}
+!
+logging {{null}}
+logging facility local2
+!
+ssh server vrf default				  
+!
+access-list ip mgmt-access
+    10 comment *** comment ***
+    20 permit any {{null}} any
+    30 permit any {{null}} any
+    40 permit any {{null}} any
+    60 comment *** comment ***
+    70 permit any {{null}} any
+    120 comment *** comment ***
+    130 permit any {{null}} any
+    190 comment *** comment ***
+    200 permit any {{gateway_ip}} any
+    210 comment *** comment ***
+    220 permit icmp any any
+apply access-list ip mgmt-access control-plane vrf default
+!
+client track ip
+vlan 1
+vlan {{mgmt_vlan}} 
+    name {{mgmt_vlan_name}}
+    client track ip
+!
+spanning-tree mode mstp
+spanning-tree
+spanning-tree priority 8
+!
+qos trust dscp
+!
+aaa authentication port-access dot1x authenticator
+    radius server-group CLEARPASS-RADIUS
+    enable
+aaa authentication port-access mac-auth
+    radius server-group CLEARPASS-RADIUS
+    enable
+!
+interface vlan 1
+    shutdown
+interface vlan {{mgmt_vlan}} 
+    description {{mgmt_vlan_name}}
+    ip address {{mgmt_ip}}/{{mgmt_ip_cidr}}    
+!
+snmp-server vrf default
+snmp-server system-location {{system_location}}
+snmp-server community {{null}}
+snmpv3 user {{null}} auth sha auth-pass {{null}}
+snmpv3 user {{null}} auth sha auth-pass ciphertext {{null}}
+snmp-server host {{null}} trap version v3 user {{null}}
+snmpv3 context {{null}} vrf default community {{null}}
+!
+ip route 0.0.0.0/0 {{gateway_ip}}
+!
+ip dns domain-name {{null}}
+ip dns host {{null}}
+ip dns host {{null}}
+!
+ip source-interface all interface vlan{{mgmt_vlan}}
+!
+https-server vrf default
+
+

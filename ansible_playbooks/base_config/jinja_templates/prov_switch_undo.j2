@@ -1,0 +1,12 @@
+!
+no ssh server vrf mgmt
+y
+!
+no aaa authentication login ssh local
+no aaa authentication allow-fail-through 
+!
+interface mgmt
+    no ip static 192.168.1.{{enter_ip_here}}/24
+    no default-gateway 192.168.1.254
+    shut
+ 

@@ -1,0 +1,33 @@
+conf t
+default int 1/1/24
+int 1/1/24
+description WAP1
+no routing
+vlan trunk native 1
+vlan trunk allowed all
+qos trust dscp
+rate-limit multicast 2000 kbps
+default int 1/1/25
+int 1/1/25
+description WAP2
+no routing
+vlan trunk native 1
+vlan trunk allowed all
+qos trust dscp
+rate-limit multicast 2000 kbps
+default int 1/1/26
+int 1/1/26
+description WAP3
+no routing
+vlan trunk native 1
+vlan trunk allowed all
+qos trust dscp
+rate-limit multicast 2000 kbps
+default int 1/1/27
+int 1/1/27
+description WAP4
+no routing
+vlan trunk native 1
+vlan trunk allowed all
+qos trust dscp
+rate-limit multicast 2000 kbps

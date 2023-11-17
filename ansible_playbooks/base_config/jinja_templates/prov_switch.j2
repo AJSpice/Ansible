@@ -1,0 +1,12 @@
+!
+ssh server vrf mgmt
+aaa authentication login ssh local
+aaa authentication allow-fail-through
+!
+spanning-tree mode mstp
+spanning-tree
+spanning-tree priority 8
+!
+interface mgmt
+    ip static 192.168.1.{{enter_ip_here}}/24
+    default-gateway 192.168.1.254
