@@ -1,0 +1,50 @@
+---
+  # name of the playbook
+- name: Push Network Commands
+
+  hosts: PROV_NET
+  collections:
+    - arubanetworks.aoscx 
+  vars:
+    - ansible_tacacs_username: "{{ lookup('file', '/home/ansible/credentials.yml') | from_yaml }}" # used to find the ansible_user tacacs login
+    - ansible_tacacs_password: "{{ lookup('file', '/home/ansible/credentials.yml') | from_yaml }}" # used to find the ansible_password tacacs login
+    - ansible_user: "{{ local_admin_username }}" # reassign to new var
+    - ansible_password: "{{ local_admin_password }}" # reassign to new var
+  vars_files: # path to encrypted credentials file
+    - /home/ansible/credentials.yml
+  gather_facts: no
+
+  tasks:
+      - name: Copy TFTP
+        vars:
+          - ansible_command_timeout: 60
+        aoscx_command:
+          commands:
+            - auto-confirm
+            - copy tftp://path/to/firmware/image.ios secondary vrf mgmt
+      
+      - name: Copy Secondary to Primary
+        vars:
+          - ansible_command_timeout: 60
+        aoscx_command:
+          commands:
+            - auto-confirm
+            - copy secondary primary
+
+      - name: Boot System
+        vars:
+          - ansible_command_timeout: 600
+        aoscx_command:
+          commands:
+            - auto-confirm
+            - boot system
+        async: 120
+        poll: 0
+
+      - name: Wait For The Devices To Come Back Online
+        wait_for_connection:
+          delay: 30
+          timeout: 600
+
+
+...
