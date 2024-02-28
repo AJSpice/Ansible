@@ -1,0 +1,115 @@
+!!!! PROV SWITCH !!!!
+
+
+conf t
+!
+hostname SWT012
+!
+domain-name 
+!
+banner motd !
+------------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------------  
+!
+user admin group administrators password ciphertext 
+user sdsc_cosd group administrators password ciphertext 
+!
+clock timezone america/los_angeles
+no ip icmp unreachable
+no ip icmp redirect
+allow-unsupported-transceiver confirm
+ntp server 192.168.10.254 iburst
+ntp enable
+cli-session
+    timeout 10
+!
+tacacs-server host  key ciphertext 																									  
+tacacs-server host  key ciphertext 
+radius-server host  key ciphertext 
+radius-server host  key ciphertext 
+!
+aaa group server tacacs CLEARPASS-TACACS
+    server 
+    server 
+aaa group server radius CLEARPASS-RADIUS
+    server 
+    server 
+!
+aaa authentication login console group CLEARPASS-TACACS local
+aaa authentication login https-server group CLEARPASS-TACACS
+aaa authentication login ssh group CLEARPASS-TACACS
+aaa accounting all-mgmt console start-stop group CLEARPASS-TACACS
+aaa accounting all-mgmt default start-stop group CLEARPASS-TACACS
+aaa accounting all-mgmt https-server start-stop group CLEARPASS-TACACS
+aaa accounting all-mgmt ssh start-stop group CLEARPASS-TACACS
+aaa accounting port-access start-stop interim 15 group CLEARPASS-RADIUS
+!
+radius dyn-authorization enable
+radius dyn-authorization client  secret-key ciphertext 
+radius dyn-authorization client  secret-key ciphertext 
+!
+logging 
+logging facility local2
+!
+ssh server vrf default				  
+!
+access-list ip mgmt-access
+    10 comment *** comment ***
+    20 permit any  any
+    30 permit any  any
+    40 permit any  any
+    60 comment *** comment ***
+    70 permit any  any
+    120 comment *** comment ***
+    130 permit any  any
+    190 comment *** comment ***
+    200 permit any 192.168.10.254 any
+    210 comment *** comment ***
+    220 permit icmp any any
+apply access-list ip mgmt-access control-plane vrf default
+!
+client track ip
+vlan 1
+vlan 2 
+    name MANAGEMENT_VLAN
+    client track ip
+!
+spanning-tree mode mstp
+spanning-tree
+spanning-tree priority 8
+!
+qos trust dscp
+!
+aaa authentication port-access dot1x authenticator
+    radius server-group CLEARPASS-RADIUS
+    enable
+aaa authentication port-access mac-auth
+    radius server-group CLEARPASS-RADIUS
+    enable
+!
+interface vlan 1
+    shutdown
+interface vlan 2 
+    description MANAGEMENT_VLAN
+    ip address 192.168.10.12/24    
+!
+snmp-server vrf default
+snmp-server system-location 
+snmp-server community 
+snmpv3 user  auth sha auth-pass 
+snmpv3 user  auth sha auth-pass ciphertext 
+snmp-server host  trap version v3 user 
+snmpv3 context  vrf default community 
+!
+ip route 0.0.0.0/0 192.168.10.254
+!
+ip dns domain-name 
+ip dns host 
+ip dns host 
+!
+ip source-interface all interface vlan2
+!
+https-server vrf default
+
+

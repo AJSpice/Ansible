@@ -1,0 +1,6 @@
+spanning_tree_priority,prov_ip,switch_hostname
+1,192.168.1.10,SWT010
+12,192.168.1.11,SWT011
+12,192.168.1.12,SWT012
+12,192.168.1.13,SWT013
+8,192.168.1.14,SWT014

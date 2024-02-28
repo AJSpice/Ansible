@@ -1,0 +1,17 @@
+!
+no ssh server vrf mgmt
+y
+!
+no aaa authentication login ssh local
+no aaa authentication allow-fail-through
+spanning-tree priority {{priority}} 
+!
+interface mgmt
+    no default-gateway 10.96.7.254
+	no ip static 10.96.7.{{prov_ip}}/24
+    shut
+!
+exit
+
+wr me
+

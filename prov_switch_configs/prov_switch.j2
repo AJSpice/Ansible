@@ -1,0 +1,20 @@
+!
+conf t
+!
+ssh server vrf mgmt
+aaa authentication login ssh local
+aaa authentication allow-fail-through
+!
+spanning-tree mode mstp
+spanning-tree
+spanning-tree priority 12
+!
+interface mgmt
+    ip static 10.96.7.{{prov_ip}}/24
+    default-gateway 10.96.7.254
+    no shut
+exit
+
+!
+wr me
+

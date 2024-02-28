@@ -1,0 +1,4 @@
+switch_hostname,prov_ip,switch_model,link_1,link_2,member_number,member_type,stack_number,secondary_member
+SWT014,192.168.1.14,6300,1/1/51,1/1/52,1,conductor,1,3
+SWT015,192.168.1.15,6300,1/1/51,1/1/52,2,member,1,
+SWT016,192.168.1.16,6300,1/1/51,1/1/52,3,standby,1,

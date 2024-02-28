@@ -1,0 +1,61 @@
+---
+  # name of the playbook
+- name: Push Firmware Updates
+
+  hosts: FIRMWARE_UPDATE
+  collections:
+    - arubanetworks.aoscx 
+  vars:
+    ansible_tacacs_username: "{{ lookup('file', '/home/ansible/credentials.yml') | from_yaml }}" # used to find the ansible_user tacacs login
+    ansible_tacacs_password: "{{ lookup('file', '/home/ansible/credentials.yml') | from_yaml }}" # used to find the ansible_password tacacs login
+    ansible_user: "{{ local_admin_username }}" # reassign to new var
+    ansible_password: "{{ local_admin_password }}" # reassign to new var
+    # the firmware update playbook needs to use paramiko ssh type
+    ansible_ssh_type: paramiko
+  vars_files: /home/ansible/credentials.yml
+  gather_facts: no
+
+  tasks:
+      - name: Copy TFTP for 6100 models
+        vars:
+          ansible_command_timeout: 600
+        aoscx_command:
+          commands:
+            - auto-confirm
+            - copy tftp://1.1.1.1/{{ hostvars[inventory_hostname]['switch_model'] }}_10_10_1020.swi secondary
+        when: hostvars[inventory_hostname]['switch_model'] == 6100
+
+      - name: Copy TFTP for 6300 models
+        vars:
+          ansible_command_timeout: 600
+        aoscx_command:
+          commands:
+            - auto-confirm
+            - copy tftp://1.1.1.1/{{ hostvars[inventory_hostname]['switch_model'] }}_10_10_1020.swi secondary vrf mgmt
+        when: hostvars[inventory_hostname]['switch_model'] == 6300
+      
+      - name: Copy Secondary to Primary
+        vars:
+          ansible_command_timeout: 60
+        aoscx_command:
+          commands:
+            - auto-confirm
+            - copy secondary primary
+
+      - name: Boot System
+        vars:
+          ansible_command_timeout: 600
+        aoscx_command:
+          commands:
+            - auto-confirm
+            - boot system
+        async: 1000
+        poll: 0
+
+      - name: Wait For The Devices To Come Back Online
+        wait_for_connection:
+          delay: 60
+          timeout: 1000
+
+
+...

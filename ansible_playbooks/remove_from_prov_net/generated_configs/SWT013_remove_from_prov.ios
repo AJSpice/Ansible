@@ -1,0 +1,29 @@
+!
+conf t
+clock datetime 2024-02-28 14:57
+!
+job remove_from_prov
+10 cli conf t
+15 cli no ssh server vrf mgmt
+!
+20 cli no aaa authentication login ssh local
+25 cli no aaa authentication allow-fail-through
+30 cli spanning-tree priority 12 
+!
+35 cli interface mgmt
+40 cli no default-gateway 192.168.1.254
+45 cli no ip static 192.168.1.13/24
+50 cli shut
+60 cli exit
+!
+65 cli no job remove_from_prov
+70 cli no schedule remove_from_prov
+!
+75 cli wr me
+!
+exit
+!
+schedule remove_from_prov
+job remove_from_prov
+trigger at 14:59 2024-02-28
+! 15:30 2024-02-12

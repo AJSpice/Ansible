@@ -1,0 +1,28 @@
+---
+- name: Push Base_Config to the Switches on the MAIN based off the CSV file info
+  hosts: MAIN
+  collections: arubanetworks.aoscx
+  gather_facts: no
+
+  vars:
+    ansible_tacacs_username: "{{ lookup('file', '/home/ansible/credentials.yml') | from_yaml }}" # used to find the ansible_user tacacs login
+    ansible_tacacs_password: "{{ lookup('file', '/home/ansible/credentials.yml') | from_yaml }}" # used to find the ansible_password tacacs login
+    ansible_user: "{{ local_admin_username }}" # reassign to new var
+    ansible_password: "{{ local_admin_password }}" # reassign to new var
+  vars_files: /home/ansible/credentials.yml
+  
+  
+  tasks:
+
+    - name: Read the CLI commands from the txt file
+      shell: cat ./remove_from_prov.ios
+      register: command_file
+
+    - name: Send CLI Commands
+      aoscx_command:
+        commands: "{{ command_file.stdout_lines }}"
+      register: cli_output
+
+    - name: see CLI output
+      debug:
+        var: cli_output
